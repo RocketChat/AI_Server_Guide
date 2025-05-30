@@ -1,0 +1,16 @@
+{
+    "id": "ad1fa653-c19f-464b-866c-ac6cb7561dc6",
+    "version": "0.0.1",
+    "requiredApiVersion": "^1.44.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Abir Chakraborty",
+        "homepage": "abirc8010@gmail.com",
+        "support": "abirc8010@gmail.com"
+    },
+    "name": "AI_Server_Guide_Agent",
+    "nameSlug": "aiserverguideagent",
+    "classFile": "AiServerGuideAgentApp.ts",
+    "description": "an intelligent assistant that helps onboard users and allows admins to configure and manage server settings through a conversational interface.",
+    "implements": []
+}
