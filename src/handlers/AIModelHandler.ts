@@ -3,7 +3,7 @@ import { GeminiModel } from './models/GeminiModel';
 import { IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { SettingEnum } from '../../config/settings';
 
-export class AIModelManager {
+export class AIModelHandler {
     static async getModel(read: IRead): Promise<IAIModel> {
         const aiProvider = await read
             .getEnvironmentReader()
