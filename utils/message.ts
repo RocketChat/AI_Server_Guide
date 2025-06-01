@@ -12,7 +12,7 @@ export async function getDirectRoom(
     read: IRead,
     modify: IModify,
     appUser: IUser,
-    username: string
+    username: string,
 ): Promise<IRoom | undefined> {
     const usernames = [appUser.username, username];
     let room: IRoom;
@@ -45,7 +45,7 @@ export async function sendMessage(
     room: IRoom,
     sender: IUser,
     message: string,
-    blocks?: LayoutBlock[]
+    blocks?: Array<LayoutBlock>,
 ): Promise<string> {
     const msg = modify
         .getCreator()
@@ -62,13 +62,12 @@ export async function sendMessage(
     return await modify.getCreator().finish(msg);
 }
 
-
 export async function sendDirectMessageOnInstall(
     read: IRead,
     modify: IModify,
     user: IUser,
     persistence: IPersistence,
-    blocks?: Array<Block>
+    blocks?: Array<Block>,
 ): Promise<string> {
     const appUser = (await read.getUserReader().getAppUser()) as IUser;
 
@@ -76,7 +75,7 @@ export async function sendDirectMessageOnInstall(
         read,
         modify,
         appUser,
-        user.username
+        user.username,
     )) as IRoom;
 
     const text = `${MessageEnum.APP_INSTALLED_TEXT}\n
