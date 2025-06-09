@@ -1,15 +1,15 @@
 import { IHttp, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { SettingEnum } from '../../../config/settings';
-import { IAIModel } from '../../../definitions/IAIModel';
+import { SettingEnum } from '../../../../config/settings';
+import { IAIModel } from '../../../../definitions/IAIModel';
+import {MessageEnum} from '../../../../enums/messageEnum';
 
 export class GeminiModel implements IAIModel {
     public async generateResponse(prompt: string, http: IHttp, read: IRead): Promise<string> {
         const geminiApiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.GEMINI_AI_API_KEY_ID);
 
         if (!geminiApiKey) {
-            return JSON.stringify({ message: 'Gemini API key is missing. Please configure it in settings.' });
+            return MessageEnum.API_KEY_MISSING_TEXT;
         }
-
         const body = {
             contents: [
                 {

@@ -33,5 +33,5 @@ export const Settings: Array<ISetting> = [
         public: false,
         i18nLabel: 'Gemini API Key',
         i18nPlaceholder: 'Gemini API Key',
-    }
+    },
 ];
