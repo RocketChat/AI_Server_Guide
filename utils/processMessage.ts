@@ -65,6 +65,10 @@ export async function processAdminMessage(
             messageToSend,
         } = JSON.parse(workflowResponse);
 
+        if (workflow === 'unknown') {
+            return intermediateMessage;
+        }
+
         await modify
             .getCreator()
             .finish(
@@ -78,10 +82,9 @@ export async function processAdminMessage(
         switch (workflow) {
             case 'onboarding_message':
                 return handleOnboardingMessage(adminMessage, adminStorage, historyStorage, aiModel, http, read, userId);
-
             default:
                 return MessageEnum.INSTRUCTION_TEXT.toString();
-        }
+    }
     } catch (error) {
         console.error('Error processing admin request:', error);
         return 'Error processing the request. Please try again.';

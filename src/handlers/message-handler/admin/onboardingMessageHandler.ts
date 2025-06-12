@@ -29,20 +29,20 @@ export async function handleOnboardingMessage(
     );
 
     try {
-        const { aihelp, aiMessage, message } = JSON.parse(welcomeMessageResponse);
+        const { aihelp, aiMessage, message, followup } = JSON.parse(welcomeMessageResponse);
 
         await historyStorage.updateHistory('onboarding', userId, adminMessage);
 
         if (aihelp) {
             await historyStorage.updateHistory('onboarding', userId, 'bot: ' + aiMessage);
-            return aiMessage;
+            return aiMessage + '\n' + followup;
         }
         await historyStorage.updateHistory('onboarding', userId, 'bot: ' + message);
         const adminConfig = (await adminStorage.getAdminConfig()) || {};
         adminConfig.welcomeMessage = message;
         await adminStorage.storeAdminConfig(adminConfig);
 
-        return 'Welcome message set successfully.';
+        return 'Welcome message set successfully.' + '\n' + followup;
     } catch (error) {
         console.error('Error parsing AI response for onboarding:', error);
         return 'Failed to process the onboarding request.';
