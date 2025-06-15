@@ -1,6 +1,6 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IRoomRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
+import {IRoom} from '@rocket.chat/apps-engine/definition/rooms';
 import { MessageEnum } from '../enums/messageEnum';
 import { PromptEnum } from '../enums/promptEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';
@@ -8,6 +8,7 @@ import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
 import { handleOnboardingMessage } from '../src/handlers/message-handler/admin/onboardingMessageHandler';
 import { AdminPersistence } from '../src/persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../src/persistence/ConversationPersistence';
+import {sendIntermediate} from './message';
 
 export async function processAdminMessage(
     message: IMessage,
@@ -16,77 +17,80 @@ export async function processAdminMessage(
     modify: IModify,
     persistence: IPersistence,
 ): Promise<string> {
-
-    if (!message.text?.trim()) {
-        return 'Hi there! Could you let me know what you\'d like help with?';
+    const input = message.text?.trim();
+    if (!input) {
+        return MessageEnum.MESSAGE_PROCESSING_ERROR;
     }
 
-    const adminMessage = message.text.trim();
-    const aiModel = await getModel(read);
-
-    const injectionCheckPrompt = PromptProvider.getPromptInjectionSafetyPrompt(adminMessage);
-    const isSafeResponse = await aiModel.generateResponse(injectionCheckPrompt, http, read);
-    const {issafe} = JSON.parse(isSafeResponse);
-    if (!issafe) {
-        return 'Sorry, I can\'t process that request.';
+    const model = await getModel(read);
+    const isSafe = await checkPromptSafety(input, model, http, read);
+    if (!isSafe) {
+        return MessageEnum.MESSAGE_PROCESSING_ERROR;
     }
 
-    const roomMessageReader: IRoomRead = read.getRoomReader();
-    const messageHistory = await roomMessageReader.getMessages(message.room.id, {
+    const context = await getContextText(read, message.room.id);
+
+    const prompt = PromptProvider.getAdminPrompt(PromptEnum.ADMIN_WORKFLOW_DETECTION_PROMPT, {
+        adminMessage: input,
+        history: context,
+    });
+
+    const rawResponse = await model.generateResponse(prompt, http, read);
+    if (rawResponse === MessageEnum.API_KEY_MISSING_TEXT) {
+        return rawResponse;
+    }
+
+    let workflowData: any;
+    try {
+        workflowData = JSON.parse(rawResponse);
+    } catch {
+        return MessageEnum.MESSAGE_PROCESSING_ERROR;
+    }
+
+    const {
+        workflow,
+        message: intermediateMessage = 'Processing your request...',
+        channels,
+        users,
+        messageToSend,
+    } = workflowData;
+
+    if (workflow !== 'unknown') {
+        await sendIntermediate(modify, message.room, intermediateMessage);
+    }
+
+    const userId = message.sender.id;
+    const adminStore = new AdminPersistence(persistence, read.getPersistenceReader());
+    const historyStore = new ConversationHistoryPersistence(persistence, read.getPersistenceReader());
+
+    switch (workflow) {
+        case 'onboarding_message':
+            return handleOnboardingMessage(input, adminStore, historyStore, model, http, read, userId);
+        default:
+            return MessageEnum.INSTRUCTION_TEXT.toString();
+    }
+}
+
+async function checkPromptSafety(
+    input: string,
+    model: any,
+    http: IHttp,
+    read: IRead,
+): Promise<boolean> {
+    const prompt = PromptProvider.getPromptInjectionSafetyPrompt(input);
+    const output = await model.generateResponse(prompt, http, read);
+    try {
+        const { issafe } = JSON.parse(output);
+        return !!issafe;
+    } catch {
+        return false;
+    }
+}
+
+async function getContextText(read: IRead, roomId: string): Promise<string> {
+    const messages = await read.getRoomReader().getMessages(roomId, {
         limit: 20,
         sort: { createdAt: 'asc' },
     });
-
-    const historyText = messageHistory
-        .map((msg) => `${msg.sender.username}: ${msg.text}`)
-        .join('\n');
-
-    const adminStorage = new AdminPersistence(persistence, read.getPersistenceReader());
-    const historyStorage = new ConversationHistoryPersistence(persistence, read.getPersistenceReader());
-    const userId = message.sender.id;
-
-    const workflowPrompt = PromptProvider.getAdminPrompt(PromptEnum.ADMIN_WORKFLOW_DETECTION_PROMPT, {
-        adminMessage,
-        history: historyText,
-    });
-
-    const workflowResponse = await aiModel.generateResponse(workflowPrompt, http, read);
-
-    if (workflowResponse === MessageEnum.API_KEY_MISSING_TEXT) {
-        return workflowResponse;
-    }
-
-    try {
-        const {
-            workflow,
-            message: intermediateMessage = 'Processing your request...',
-            channels,
-            users,
-            messageToSend,
-        } = JSON.parse(workflowResponse);
-
-        if (workflow === 'unknown') {
-            return intermediateMessage;
-        }
-
-        await modify
-            .getCreator()
-            .finish(
-                modify
-                    .getCreator()
-                    .startMessage()
-                    .setText(intermediateMessage)
-                    .setRoom(message.room),
-            );
-
-        switch (workflow) {
-            case 'onboarding_message':
-                return handleOnboardingMessage(adminMessage, adminStorage, historyStorage, aiModel, http, read, userId);
-            default:
-                return MessageEnum.INSTRUCTION_TEXT.toString();
-    }
-    } catch (error) {
-        console.error('Error processing admin request:', error);
-        return 'Error processing the request. Please try again.';
-    }
+    return messages.map((msg) => `${msg.sender.username}: ${msg.text || ''}`).join('\n');
 }

@@ -24,4 +24,5 @@ export enum MessageEnum {
         **A little tip**: The more specific you can be with your responses, the better I can help you! 😊`,
     APP_INSTALLED_TEXT = `Server Guide AI Agent Installed Successfully 🤖`,
     API_KEY_MISSING_TEXT = `API key is missing please configure from the settings`,
+    MESSAGE_PROCESSING_ERROR = 'Sorry! I was unable to process your request.',
 }

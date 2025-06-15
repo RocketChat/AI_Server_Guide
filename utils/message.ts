@@ -39,7 +39,6 @@ export async function getDirectRoom(
     }
 }
 
-
 export async function sendMessage(
     modify: IModify,
     room: IRoom,
@@ -83,4 +82,9 @@ export async function sendDirectMessageOnInstall(
     `;
 
     return await sendMessage(modify, directRoom, appUser, text);
+}
+
+export async function sendIntermediate(modify: IModify, room: IRoom, text: string): Promise<string> {
+    const msg = modify.getCreator().startMessage().setRoom(room).setText(text);
+    return await modify.getCreator().finish(msg);
 }
