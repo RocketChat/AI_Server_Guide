@@ -6,6 +6,7 @@ import { PromptEnum } from '../enums/promptEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';
 import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
 import { handleOnboardingMessage } from '../src/handlers/message-handler/admin/onboardingMessageHandler';
+import {handleChannelRecommendation} from '../src/handlers/message-handler/admin/recommendChannel';
 import { AdminPersistence } from '../src/persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../src/persistence/ConversationPersistence';
 import {sendIntermediate} from './message';
@@ -66,6 +67,8 @@ export async function processAdminMessage(
     switch (workflow) {
         case 'onboarding_message':
             return handleOnboardingMessage(input, adminStore, historyStore, model, http, read, userId);
+        case 'user_channel_setup':
+            return handleChannelRecommendation(input, adminStore, historyStore, model, http, read, userId);
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
     }
@@ -90,7 +93,7 @@ async function checkPromptSafety(
 async function getContextText(read: IRead, roomId: string): Promise<string> {
     const messages = await read.getRoomReader().getMessages(roomId, {
         limit: 20,
-        sort: { createdAt: 'asc' },
+        sort: { createdAt: 'desc' },
     });
     return messages.map((msg) => `${msg.sender.username}: ${msg.text || ''}`).join('\n');
 }

@@ -81,7 +81,6 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPos
                     persistence,
                 );
             }
-
             const msgBuilder = modify.getCreator().startMessage();
             msgBuilder.setText(responseText);
             msgBuilder.setRoom(message.room);
@@ -130,5 +129,21 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPos
         if (adminConfig.welcomeMessage) {
             await sendMessage(modify, dmRoom, appUser, adminConfig.welcomeMessage);
         }
+        if(adminConfig.newComerChannel) {
+            for (const channel of adminConfig.newComerChannel) {
+                const channelName = channel.startsWith('#') ? channel.slice(1) : channel;
+                const room = await read.getRoomReader().getByName(channelName);
+                if (!room) {
+                    console.log(`Room not found: ${channelName}`);
+                    continue;
+                }
+                const roomUpdater = await modify.getUpdater().room(room.id, createdUser);
+
+                roomUpdater.addMemberToBeAddedByUsername(createdUser.username);
+
+                await modify.getUpdater().finish(roomUpdater);
+            }
+        }
+
     }
 }
