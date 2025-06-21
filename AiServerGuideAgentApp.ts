@@ -8,7 +8,7 @@ import { IConfigurationExtend } from '@rocket.chat/apps-engine/definition/access
 import { IEnvironmentRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
-import {IPostMessageSent} from '@rocket.chat/apps-engine/definition/messages';
+import {IPostMessageSentToBot} from '@rocket.chat/apps-engine/definition/messages/IPostMessageSentToBot';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import {IPostUserCreated} from '@rocket.chat/apps-engine/definition/users';
 import {IUserContext} from '@rocket.chat/apps-engine/definition/users';
@@ -18,7 +18,7 @@ import { sendDirectMessageOnInstall } from './utils/message';
 import {getDirectRoom, sendMessage} from './utils/message';
 import { processAdminMessage } from './utils/processMessage';
 
-export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPostUserCreated {
+export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot, IPostUserCreated {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -43,24 +43,8 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPos
             ),
         );
     }
-    public async checkPostMessageSent(
-        message: IMessage,
-        read: IRead,
-        http: IHttp,
-    ): Promise<boolean> {
-        const botUser = await read.getUserReader().getAppUser();
-        if (!botUser) {
-            return false;
-        }
-        return (
-            !!message.text &&
-            message.room.type === 'd' &&
-            message.sender.id !== botUser.id && (
-                message.room.id.endsWith(botUser.id) || message.room.id.startsWith(botUser.id))
-        );
-    }
 
-    public async executePostMessageSent(
+    public async executePostMessageSentToBot(
         message: IMessage,
         read: IRead,
         http: IHttp,
@@ -86,7 +70,7 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPos
             msgBuilder.setRoom(message.room);
             await modify.getCreator().finish(msgBuilder);
         } catch (error) {
-            this.getLogger().error(`Error processing DM: ${error}`);
+            console.log(`Error processing DM: ${error}`);
         }
     }
 
@@ -144,6 +128,8 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPos
                 await modify.getUpdater().finish(roomUpdater);
             }
         }
-
+        if (adminConfig.serverRules) {
+           await sendMessage(modify, dmRoom, appUser, adminConfig.serverRules);
+        }
     }
 }

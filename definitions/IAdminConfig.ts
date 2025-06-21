@@ -1,9 +1,9 @@
 export interface IAdminConfig {
-    welcomeMessage?: string;
+    welcomeMessage: string;
     recommendedChannels: string;
     newComerChannel: Array<string>;
-    serverRules?: string;
-    channelReport?: string;
+    serverRules: string;
+    channelReport: string;
 }
 
 export function getDefaultAdminConfig(): IAdminConfig {

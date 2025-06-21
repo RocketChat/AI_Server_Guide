@@ -19,7 +19,7 @@ export async function handleChannelRecommendation(
     const historyContext = Array.isArray(rawHistory) ? rawHistory.join('\n') : '';
 
     const adminConfig: IAdminConfig = (await adminStorage.getAdminConfig()) ?? getDefaultAdminConfig();
-    const channelPrompt = PromptProvider.getAdminPrompt(PromptEnum.ADMIN_CHANNEL_RECOMMENDATIONS, {
+    const channelPrompt = PromptProvider.getAdminPrompt(PromptEnum.ADMIN_CHANNEL_RECOMMENDATIONS_PROMPT, {
         adminMessage,
         history: historyContext,
         adminConfig,

@@ -13,7 +13,7 @@ export class AdminPrompt {
 
             Possible Workflows:
             1. onboarding_message: When the admin wants to define or modify a welcome message for new users.
-            2. server_rules: When the admin wants to set or update community guidelines or policies.
+            2. server_rules: When the admin wants to set or update community guidelines or policies. Any channel suggestion does not count as server rule.
             3. user_channel_setup: When the admin is choosing which channels new users should be automatically added to. Or maybe give some instructions where users should be joined based on the activity they intend to do
             4. channel_report: When the admin requests insights on channel activity, engagement, or other metrics.
             5. send_message: When the admin instructs to send a specific message to users or channels.
@@ -146,7 +146,7 @@ export class AdminPrompt {
             \`\`\`
 
             Rules:
-            - If admin input is clear and well-formatted, set \`"aihelp": false\`.
+            - If admin input is clear and well formatted, set \`"aihelp": false\`.
             - If input is unclear, incomplete, or ambiguous, set \`"aihelp": true\` and explain in \`aiMessage\`.
             - Only set \`"new_comer_channel"\` if:
               - The admin explicitly mentions channels for newcomers, or
@@ -158,8 +158,7 @@ export class AdminPrompt {
             Examples:
 
             Example 1:
-            Admin Instructions:
-            ###
+            Admin Instructions: ###
             For anything related to code, they should use #dev or #code. If they encounter any issues or need general assistance,
             they should head to #support. Conversations about Google Summer of Code should go in #gsoc,
             while discussions specific to Ubuntu-related topics belong in #ubuntu-snap.
@@ -182,8 +181,7 @@ export class AdminPrompt {
             \`\`\`
 
             Example 2:
-            Admin Instructions:
-            ###
+            Admin Instructions: ###
             Also join new users to #gsoc channel
             ###
 
@@ -203,8 +201,7 @@ export class AdminPrompt {
             \`\`\`
 
             Example 3:
-            Admin Instructions:
-            ###
+            Admin Instructions: ###
             Add channels related to gaming.
             ###
 
@@ -233,4 +230,71 @@ export class AdminPrompt {
             Your JSON output:
             `;
     }
+    public static getServerRulesPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+        return `
+            You are an AI assistant responsible for helping an admin to create server rules for their server into a JSON format.
+            Your task is to analyze the provided admin message along with the conversation history and generate response in a JSON output.
+
+            Context:
+            - The conversation history is provided to give you more context about what has been discussed.
+            - The admin message may request to set server rules or a request to generate rule suggestions.
+            - You should infer the most appropriate rules from the given input.
+
+            Instructions:
+            - Use the conversation history and admin message to generate a set of rules for the servr.
+            - If the admin explicitly asks for AI assistance, set "aihelp" to true and provide a well formed AI generated response.
+            - If the rules are vague or incomplete, attempt to infer them; only ask for clarification if absolutely necessary.
+            - If rules can be clearly extracted, set "aihelp" to false and provide the rules directly.
+            - If "aihelp" is false and additional clarification or a final confirmation is advisable, include it in the "followup" field.
+
+            Output Format (JSON):
+            {
+              "aihelp": true/false,
+              "aiMessage": "AI-generated response (if aihelp is true) contains any suggestion or followup if needed",
+              "message": "Final structured server rules in normal string form, NO JSON — ONLY WHEN THE USER IS READY TO SET THEM AS FINAL",
+              "followup": "Optional: Only shown when aihelp is false — ask for confirmation or point out anything needing final admin review."
+            }
+
+            Example 1:
+            Admin Message: ###
+            Can you help me write rules for general conduct and spam prevention?"
+            ###
+            Output:
+            {
+              "aihelp": true,
+              "aiMessage": "Here are some suggested rules:\n1. Be respectful to others.\n2. No spamming or repeated posting.\n3. Avoid offensive language.\nPlease review and let me know if you'd like changes.",
+              "message": "",
+              "followup": ""
+            }
+
+            Example 2:
+            Admin Message: ###
+            Set these as rules : 1. Be kind 2. No spam
+            ###
+
+            Output:
+            {
+              "aihelp": false,
+              "aiMessage": "",
+              "message": "1. Be kind to all members.\n2. No spam or self-promotion.",
+              "followup": "Let me know if you'd like to review or reorder any rule before finalizing."
+            }
+
+            Now generate the JSON response based on the below input.
+
+
+            Current Server Rules (from history): ${adminConfig?.serverRules ?? 'No prior rules provided'}
+
+            Input:
+            - Conversation History ###
+              ${history ?? 'No history available'}
+              ###
+            - Admin Message: ###
+              ${adminMessage ?? 'No rules provided'}
+              ###
+
+             Your JSON Output:
+          `;
+    }
+
 }

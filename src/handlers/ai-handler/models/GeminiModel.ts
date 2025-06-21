@@ -19,7 +19,7 @@ export class GeminiModel implements IAIModel {
         };
 
         const response = await http.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
             {
                 headers: { 'Content-Type': 'application/json' },
                 content: JSON.stringify(body),

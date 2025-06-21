@@ -5,8 +5,7 @@ import { MessageEnum } from '../enums/messageEnum';
 import { PromptEnum } from '../enums/promptEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';
 import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
-import { handleOnboardingMessage } from '../src/handlers/message-handler/admin/onboardingMessageHandler';
-import {handleChannelRecommendation} from '../src/handlers/message-handler/admin/recommendChannel';
+import { handleChannelRecommendation, handleOnboardingMessage, handleServerRules } from '../src/handlers/message-handler/admin/adminMessageHandler';
 import { AdminPersistence } from '../src/persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../src/persistence/ConversationPersistence';
 import {sendIntermediate} from './message';
@@ -69,6 +68,8 @@ export async function processAdminMessage(
             return handleOnboardingMessage(input, adminStore, historyStore, model, http, read, userId);
         case 'user_channel_setup':
             return handleChannelRecommendation(input, adminStore, historyStore, model, http, read, userId);
+        case 'server_rules':
+            return handleServerRules(input, adminStore, historyStore, model, http, read, userId);
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
     }
