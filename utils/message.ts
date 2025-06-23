@@ -88,3 +88,38 @@ export async function sendIntermediate(modify: IModify, room: IRoom, text: strin
     const msg = modify.getCreator().startMessage().setRoom(room).setText(text);
     return await modify.getCreator().finish(msg);
 }
+
+export async function sendBulkMessage(aihelp: boolean,
+                                      channels: Array<string>,
+                                      users: Array<string>,
+                                      messageToSend: string,
+                                      read: IRead,
+                                      modify: IModify,
+                                      ): Promise<void> {
+    if (aihelp) {
+        return;
+    }
+    const botUser = await read.getUserReader().getAppUser();
+    if (!botUser) {
+      return ;
+    }
+    if (channels !== undefined) {
+        for (const channel of channels) {
+            const room = await read.getRoomReader().getByName(channel.startsWith('#') ? channel.slice(1) : channel);
+            if (!room) {
+                continue;
+            }
+            await sendMessage(modify, room, botUser, messageToSend);
+        }
+    }
+    if (users !== undefined) {
+        for (let user of users) {
+            user = user.startsWith('@') ? user.slice(1) : user;
+            const room = await getDirectRoom(read, modify, botUser, user);
+            if (!room) {
+                continue;
+            }
+            await sendMessage(modify, room, botUser, messageToSend);
+        }
+    }
+}

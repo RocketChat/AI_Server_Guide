@@ -3,23 +3,24 @@ import {IAdminConfig} from '../../definitions/IAdminConfig';
 export class AdminPrompt {
     public static getWorkflowDetectionPrompt(adminMessage: string, history?: string): string {
         return `
-            You are an AI assistant for Rocket.Chat, responsible for guiding admins through various setup workflows.
-            Your task is to determine which specific action the admin is requesting based on the most recent messages in the conversation history.
+            You are an AI assistant for Rocket.Chat. Your task is to detect what specific setup workflow the admin is trying to perform based on their latest message and recent conversation history.
 
-            Focus Guidelines:
-            1. Prioritize the most recent messages in the conversation history along with the current admin message.
-            2. Use the conversation history for context, but base your decision primarily on the latest admin message.
-            3. If the history suggests an ongoing discussion about a specific workflow, favor that workflow, unless the latest message clearly indicates a different intent.
+            Guidelines:
+            1. Prioritize the latest admin message to detect intent.
+            2. Use conversation history only for context. If there is an ongoing workflow in the history, consider it, but only if the latest message does not clearly indicate a new workflow.
+            3. If the admin wants to send a message but the message content is incomplete or unclear (such as missing links or not specifying recipients), still classify it as send_message and ask for the missing information.
 
-            Possible Workflows:
-            1. onboarding_message: When the admin wants to define or modify a welcome message for new users.
-            2. server_rules: When the admin wants to set or update community guidelines or policies. Any channel suggestion does not count as server rule.
-            3. user_channel_setup: When the admin is choosing which channels new users should be automatically added to. Or maybe give some instructions where users should be joined based on the activity they intend to do
-            4. channel_report: When the admin requests insights on channel activity, engagement, or other metrics.
-            5. send_message: When the admin instructs to send a specific message to users or channels.
-            6. unknown: When none of the above workflows clearly match the intent.
+            Supported Workflows:
+            1. onboarding_message - Admin wants to define or change the welcome message for new users.
+            2. server_rules - Admin wants to set or update community guidelines or rules. Simply suggesting a channel does not count as server_rules.
+            3. user_channel_setup - Admin is deciding which channels new users should be automatically added to, or assigning channels based on activity or roles.
+            4. channel_report - Admin wants insights, engagement metrics, or activity data about channels.
+            5. send_message - Admin wants to send a message to users or channels. This includes:
+               - Direct instructions to send a message
+               - Requests to help write a message
+            6. unknown - Use this only if none of the above workflows clearly match the intent.
 
-            Conversation History (most recent at the bottom): ###
+            Conversation History (most recent last): ###
             ${history ? history : 'No history available'}
             ###
 
@@ -28,22 +29,16 @@ export class AdminPrompt {
             ###
 
             Instructions:
-            1. You must always return a valid workflow from the list above.
+            1. Always return one of the six valid workflows.
             2. Respond strictly in the following JSON format:
-
             {
               "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "unknown",
-              "message": "An acknowledgment message to display while executing the detected workflow. Do not include any follow-up questions at this stage. If the workflow is 'unknown', use a generic fallback message like: 'Sorry, I couldn't process your request.'",
-
-              // The following fields are required only if the detected workflow is 'send_message':
-              "channels": ["#channel1", "#channel2"],       // Optional: Channels to send the message to (must start with #)
-              "users": ["@user1", "@user2"],                // Optional: Users to send the message to (must start with @)
-              "messageToSend": "The actual message the admin wants to send"
+              "message":  return a short intermediate message to show you are working on the provided request , no followup message should be displayed in this stage
             }
-    `;
+            `;
     }
 
-    public static getWelcomeMessageSetupPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+    public static getWelcomeMessageSetupPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
 
         return `
                 You are an AI assistant helping an admin configure their Rocket.Chat workspace.
@@ -120,7 +115,7 @@ export class AdminPrompt {
                 }
                 `;
     }
-    public static getChannelRecommendationPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+    public static getChannelRecommendationPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
         return `
             You are an AI assistant designed to process admin instructions for automated channel recommendations in a chat server.
 
@@ -230,7 +225,7 @@ export class AdminPrompt {
             Your JSON output:
             `;
     }
-    public static getServerRulesPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+    public static getServerRulesPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
         return `
             You are an AI assistant responsible for helping an admin to create server rules for their server into a JSON format.
             Your task is to analyze the provided admin message along with the conversation history and generate response in a JSON output.
@@ -295,6 +290,101 @@ export class AdminPrompt {
 
              Your JSON Output:
           `;
+    }
+    public static getSendMessagePrompt(adminMessage?: string, history?: string): string {
+        return `
+            You are an AI assistant that helps Rocket.Chat admins send messages to users and channels.
+
+            Your task is to extract a structured JSON response based on the admin’s intent. A message can only be sent if:
+            - The message content is clearly provided.
+            - The recipients (users and/or channels) are explicitly mentioned or implied from recent context.
+
+            Instructions:
+            1. If either the message or the recipients are missing or unclear, set "aihelp": true.
+            2. If the message content and recipients are both clear, set "aihelp": false.
+            3. If "aihelp" is true and the admin is asking for help framing/editing the message or the recipients are missing, populate "aiMessage" accordingly.
+            4. Only include "followup" when "aihelp" is false and message is ready to be sent.
+            5. Parse channels (without '#') and users (without '@') from the admin message or conversation history if possible.
+            6. Use the current admin message as the main source; use the history for supporting context if needed.
+
+
+            Respond in this exact JSON format:
+
+            {
+              "aihelp": true | false, (confirm from user by showing them the message to be send before sending , if the user confirms then only set this field to false)
+              "message": "The full message that should be sent, or blank if unclear",
+              "aiMessage": "Only include this if aihelp is true and the admin asks for suggestions or the message is incomplete",
+              "followup": "Only include this if aihelp is false. Example: 'Message sent successfully to #general and @john'",
+              "channels": ["channel1", "channel2"],   // optional, only if clearly mentioned or inferred
+              "users": ["user1", "user2"]             // optional, only if clearly mentioned or inferred
+            }
+
+            Examples:
+
+            Example 1:
+            Admin Message: "Send: 'Team standup at 10' to #general and @jane"
+            Output:
+            {
+              "aihelp": false,
+              "message": "Team standup at 10",
+              "followup": "Message sent successfully to #general and @jane",
+              "channels": ["general"],
+              "users": ["jane"]
+            }
+
+            Example 2:
+            Admin Message: "Ask for feedback from users using google forms"
+            Output:
+            {
+              "aihelp": true,
+              "message": "",
+              "aiMessage": "Could you please share the specific user/s or channel/s to send and link of the form",
+              "channels": [],
+              "users": []
+            }
+
+            Example 3:
+            Admin Message: "Send 'Join the feedback session' to @devteam"
+            Output:
+            {
+              "aihelp": false,
+              "message": "Join the feedback session",
+              "followup": "Message sent successfully to @devteam",
+              "users": ["devteam"]
+            }
+
+            Example 4:
+            Admin Message: "Can you draft a reminder for today’s call?"
+            Output:
+            {
+              "aihelp": true,
+              "message": "",
+              "aiMessage": "Sure. How about: 'Reminder: Today’s call starts at 6 PM. Please join on time.'"
+            }
+
+            Example 5:
+            Admin Message: "Send message"
+            Output:
+            {
+              "aihelp": true,
+              "message": "",
+              "aiMessage": "What message would you like to send, and to whom?"
+            }
+
+            Now analyze the below input
+            INPUT:
+
+            Conversation History (most recent last): ###
+            ${history ? history : 'No history available'}
+            ###
+
+            Current Admin Message: ###
+            ${adminMessage}
+            ###
+
+            YOUR JSON RESPONSE:
+
+            `;
     }
 
 }

@@ -21,6 +21,8 @@ export class PromptProvider {
                 return AdminPrompt.getChannelRecommendationPrompt(adminMessage, history, adminConfig);
             case PromptEnum.ADMIN_SERVER_RULES_PROMPT:
                 return AdminPrompt.getServerRulesPrompt(adminMessage, history, adminConfig);
+            case PromptEnum.ADMIN_SEND_MESSAGE:
+                return AdminPrompt.getSendMessagePrompt(adminMessage, history);
             default:
                 throw new Error('Invalid prompt type');
         }

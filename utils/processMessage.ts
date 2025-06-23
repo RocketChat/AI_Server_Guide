@@ -6,6 +6,7 @@ import { PromptEnum } from '../enums/promptEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';
 import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
 import { handleChannelRecommendation, handleOnboardingMessage, handleServerRules } from '../src/handlers/message-handler/admin/adminMessageHandler';
+import {handleMessageSend} from '../src/handlers/message-handler/admin/handleMessageSend';
 import { AdminPersistence } from '../src/persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../src/persistence/ConversationPersistence';
 import {sendIntermediate} from './message';
@@ -50,9 +51,6 @@ export async function processAdminMessage(
     const {
         workflow,
         message: intermediateMessage = 'Processing your request...',
-        channels,
-        users,
-        messageToSend,
     } = workflowData;
 
     if (workflow !== 'unknown') {
@@ -70,6 +68,8 @@ export async function processAdminMessage(
             return handleChannelRecommendation(input, adminStore, historyStore, model, http, read, userId);
         case 'server_rules':
             return handleServerRules(input, adminStore, historyStore, model, http, read, userId);
+        case 'send_message':
+            return handleMessageSend(input, historyStore, model, http, read, userId,modify);
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
     }
