@@ -60,7 +60,6 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
         modify: IModify,
     ): Promise<void> {
         try {
-            console.log("Persistence on sending message",persistence);
             if (!message.text) {
                 return;
             }
