@@ -1,6 +1,5 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
-import {IRoom} from '@rocket.chat/apps-engine/definition/rooms';
 import { MessageEnum } from '../enums/messageEnum';
 import { PromptEnum } from '../enums/promptEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';

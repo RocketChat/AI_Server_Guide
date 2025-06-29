@@ -3,7 +3,7 @@ export interface IAdminConfig {
     recommendedChannels: string;
     newComerChannel: Array<string>;
     serverRules: string;
-    channelReport: string;
+    channelReport?: string;
 }
 
 export function getDefaultAdminConfig(): IAdminConfig {

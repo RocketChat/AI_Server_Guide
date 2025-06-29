@@ -33,7 +33,7 @@ export class AdminPrompt {
             2. Respond strictly in the following JSON format:
             {
               "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "unknown",
-              "message":  return a short intermediate message to show you are working on the provided request , no followup message should be displayed in this stage
+              "message":  return an intermediate message to show you are working on the provided request , no followup message should be displayed in this stage, respond naturally, like you're thinking or processing, something like ‘Got it, working on that now.’ or ‘Understood, let me take care of it.’
             }
             `;
     }
@@ -70,7 +70,7 @@ export class AdminPrompt {
                 }
 
                 ### User Input:
-                Current Welcome Message:
+                Current Welcome Message: (Refer to this for current welcome message config in the server)
                   "${adminConfig?.welcomeMessage ?? 'No welcome message provided'}"
 
                 Chat History: ###
@@ -218,7 +218,7 @@ export class AdminPrompt {
             Inputs:
             Admin Instructions: ${adminMessage || 'No specific instructions provided.'}
             Conversation History: ${history || 'No conversation history available.'}
-            Admin Configuration:
+            Current Admin Configurations: (Refer to this for current configs in the server instead of conversation history)
             - recommendedChannels: ${adminConfig?.recommendedChannels || 'None'}
             - newComers: ${adminConfig?.newComerChannel?.length ? JSON.stringify(adminConfig.newComerChannel) : '[]'}
 
@@ -236,8 +236,9 @@ export class AdminPrompt {
             - You should infer the most appropriate rules from the given input.
 
             Instructions:
-            - Use the conversation history and admin message to generate a set of rules for the servr.
+            - Use the conversation history and admin message to generate a set of rules for the server.
             - If the admin explicitly asks for AI assistance, set "aihelp" to true and provide a well formed AI generated response.
+            - If the admin wants to check the current server rules , set "auhelp" as true and display the exact rule in "aiMessage"
             - If the rules are vague or incomplete, attempt to infer them; only ask for clarification if absolutely necessary.
             - If rules can be clearly extracted, set "aihelp" to false and provide the rules directly.
             - If "aihelp" is false and additional clarification or a final confirmation is advisable, include it in the "followup" field.
@@ -278,7 +279,9 @@ export class AdminPrompt {
             Now generate the JSON response based on the below input.
 
 
-            Current Server Rules (from history): ${adminConfig?.serverRules ?? 'No prior rules provided'}
+            Current Server Rules:
+            Refer to this instead of the conversation history for the current server rules
+            ${adminConfig?.serverRules ?? 'No prior rules provided'}
 
             Input:
             - Conversation History ###

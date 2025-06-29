@@ -18,6 +18,9 @@
     ],
     "permissions": [
         {
+            "name": "ui.registerButtons"
+        },
+        {
             "name": "api"
         },
         {
@@ -46,6 +49,9 @@
         },
         {
             "name": "message.read"
+        },
+        {
+            "name": "ui.interact"
         }
     ]
 }
