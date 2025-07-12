@@ -149,6 +149,7 @@ export class AdminPrompt {
               - Otherwise, leave as an empty array (\`[]\`).
             - If \`aihelp\` is true, always leave \`followup\` as an empty string.
             - The JSON must be strictly valid: double quotes, no comments, and proper array structure.
+            - If the admin wants you to display/show the current channel recommendation setting then set aihelp as true and provide the exact configuration in the aiMessage and include a followup along with it in aiMessage to keep the conversation flow
 
             Examples:
 

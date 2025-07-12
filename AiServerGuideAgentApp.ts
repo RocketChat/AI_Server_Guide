@@ -8,22 +8,22 @@ import { IConfigurationExtend } from '@rocket.chat/apps-engine/definition/access
 import { IEnvironmentRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
-import {IPostMessageSentToBot} from '@rocket.chat/apps-engine/definition/messages/IPostMessageSentToBot';
+import { IPostMessageSentToBot } from '@rocket.chat/apps-engine/definition/messages/IPostMessageSentToBot';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
-import {UIKitViewSubmitInteractionContext} from '@rocket.chat/apps-engine/definition/uikit';
-import {IPostUserCreated} from '@rocket.chat/apps-engine/definition/users';
-import {IUserContext} from '@rocket.chat/apps-engine/definition/users';
+import { UIKitViewSubmitInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
+import { IPostUserCreated } from '@rocket.chat/apps-engine/definition/users';
+import { IUserContext } from '@rocket.chat/apps-engine/definition/users';
 import { Settings } from './config/settings';
-import {IAdminConfig} from './definitions/IAdminConfig';
-import {ServerGuideCommand} from './src/commands/ServerGuideCommand';
-import {AdminPersistence} from './src/persistence/AdminPersistence';
+import { IAdminConfig } from './definitions/IAdminConfig';
+import { ServerGuideCommand } from './src/commands/ServerGuideCommand';
+import { AdminPersistence } from './src/persistence/AdminPersistence';
 import { sendDirectMessageOnInstall } from './utils/message';
-import {getDirectRoom, sendMessage} from './utils/message';
+import { getDirectRoom, sendMessage } from './utils/message';
 import { processAdminMessage } from './utils/processMessage';
 
 export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot, IPostUserCreated {
 
-   constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
+    constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
     public async onInstall(
@@ -48,7 +48,7 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
             configuration.slashCommands.provideSlashCommand(
                 new ServerGuideCommand(this),
             ),
-            ],
+        ],
         );
     }
 
@@ -137,7 +137,7 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
             }
         }
         if (adminConfig.serverRules) {
-           await sendMessage(modify, dmRoom, appUser, adminConfig.serverRules);
+            await sendMessage(modify, dmRoom, appUser, adminConfig.serverRules);
         }
     }
     public async executeViewSubmitHandler(
