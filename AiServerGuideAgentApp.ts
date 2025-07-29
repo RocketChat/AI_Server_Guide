@@ -19,7 +19,9 @@ import { ServerGuideCommand } from './src/commands/ServerGuideCommand';
 import { AdminPersistence } from './src/persistence/AdminPersistence';
 import { sendDirectMessageOnInstall } from './utils/message';
 import { getDirectRoom, sendMessage } from './utils/message';
-import { processAdminMessage } from './utils/processMessage';
+import { processAdminMessage, processUserMessage } from './utils/processMessage';
+import { IApiConfig } from './definitions/IApiConfig';
+import { ApiConfigPersistence } from './src/persistence/ApiConfigPersistence';
 
 export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot, IPostUserCreated {
 
@@ -66,6 +68,15 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
             let responseText;
             if (message.sender.roles.includes('admin')) {
                 responseText = await processAdminMessage(
+                    message,
+                    read,
+                    http,
+                    modify,
+                    persistence,
+                );
+            }
+            else {
+                responseText = await processUserMessage(
                     message,
                     read,
                     http,
@@ -146,15 +157,28 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
         http: IHttp,
         persistence: IPersistence,
     ): Promise<void> {
-        const { view } = context.getInteractionData();
+        const { view, user } = context.getInteractionData();
 
         const viewState = view.state as {
+            serverUrl: { server_url_config: string };
+            xAuthToken: { x_auth_token_config: string };
+            xUserId: { x_user_id_config: string };
             welcomeMessage: { welcome_message_config: string };
             serverRules: { server_rules_config: string };
             recommendedChannels: { channel_recommendation_config: string };
             newComerChannel: { new_user_channel_config: string };
         };
-
+        const apiConfigStore = new ApiConfigPersistence(persistence, read.getPersistenceReader());
+        const apiConfig = await apiConfigStore.getApiConfig(user.id);
+        if (!apiConfig) {
+            const updatedConfig: IApiConfig = {
+                serverUrl: viewState.serverUrl?.server_url_config ?? '',
+                xAuthToken: viewState.xAuthToken?.x_auth_token_config ?? '',
+                xUserId: viewState.xUserId?.x_user_id_config ?? '',
+            }
+            await apiConfigStore.storeApiConfig(updatedConfig, user.id);
+            return;
+        }
         const welcomeMessageText = viewState.welcomeMessage?.welcome_message_config ?? '';
         const serverRulesText = viewState.serverRules?.server_rules_config ?? '';
         const recommendedChannelsText = viewState.recommendedChannels?.channel_recommendation_config ?? '';

@@ -3,13 +3,13 @@ import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/def
 import { AiServerGuideAgentApp } from '../../AiServerGuideAgentApp';
 import { CommandUtility } from '../../utils/CommandUtility';
 
-export class  ServerGuideCommand implements ISlashCommand {
+export class ServerGuideCommand implements ISlashCommand {
 
     public command = 'server-guide-config';
-    public i18nDescription = 'Edit/Create admin config through a modal';
+    public i18nDescription = 'Edit/Create server guide config through a modal';
     public providesPreview = false;
     public i18nParamsExample = '';
-    public constructor(private readonly app: AiServerGuideAgentApp) {}
+    public constructor(private readonly app: AiServerGuideAgentApp) { }
 
     public async executor(
         context: SlashCommandContext,
@@ -20,9 +20,6 @@ export class  ServerGuideCommand implements ISlashCommand {
     ): Promise<void> {
         const sender = context.getSender();
         const room = context.getRoom();
-        if (!sender.roles.includes('admin')) {
-            return ;
-        }
         const commandUtility = new CommandUtility({
             sender,
             room,

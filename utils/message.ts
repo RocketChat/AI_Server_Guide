@@ -90,18 +90,18 @@ export async function sendIntermediate(modify: IModify, room: IRoom, text: strin
 }
 
 export async function sendBulkMessage(aihelp: boolean,
-                                      channels: Array<string>,
-                                      users: Array<string>,
-                                      messageToSend: string,
-                                      read: IRead,
-                                      modify: IModify,
-                                      ): Promise<void> {
+    channels: Array<string>,
+    users: Array<string>,
+    messageToSend: string,
+    read: IRead,
+    modify: IModify,
+): Promise<void> {
     if (aihelp) {
         return;
     }
     const botUser = await read.getUserReader().getAppUser();
     if (!botUser) {
-      return ;
+        return;
     }
     if (channels !== undefined) {
         for (const channel of channels) {

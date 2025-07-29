@@ -49,6 +49,7 @@ export class CommandUtility {
         }
 
         const modal = await modalCreator({
+            user: this.sender,
             modify: this.modify,
             read: this.read,
             persistence: this.persistence,

@@ -1,8 +1,8 @@
-import {IAdminConfig} from '../../definitions/IAdminConfig';
+import { IAdminConfig } from '../../definitions/IAdminConfig';
 
 export class AdminPrompt {
-    public static getWorkflowDetectionPrompt(adminMessage: string, history?: string): string {
-        return `
+  public static getWorkflowDetectionPrompt(adminMessage: string, history?: string): string {
+    return `
             You are an AI assistant for Rocket.Chat. Your task is to detect what specific setup workflow the admin is trying to perform based on their latest message and recent conversation history.
 
             Guidelines:
@@ -18,7 +18,8 @@ export class AdminPrompt {
             5. send_message - Admin wants to send a message to users or channels. This includes:
                - Direct instructions to send a message
                - Requests to help write a message
-            6. unknown - Use this only if none of the above workflows clearly match the intent.
+            6. tool_execute - Admin wants to execute a tool or command
+            7. unknown - Use this only if none of the above workflows clearly match the intent.
 
             Conversation History (most recent last): ###
             ${history ? history : 'No history available'}
@@ -32,15 +33,15 @@ export class AdminPrompt {
             1. Always return one of the six valid workflows.
             2. Respond strictly in the following JSON format:
             {
-              "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "unknown",
+              "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "tool_execute" | "unknown",
               "message":  return an intermediate message to show you are working on the provided request , no followup message should be displayed in this stage, respond naturally, like you're thinking or processing, something like ‘Got it, working on that now.’ or ‘Understood, let me take care of it.’
             }
             `;
-    }
+  }
 
-    public static getWelcomeMessageSetupPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
+  public static getWelcomeMessageSetupPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
 
-        return `
+    return `
                 You are an AI assistant helping an admin configure their Rocket.Chat workspace.
                 Your task is to assist the admin in setting up the onboarding message that new users will see when they join.
 
@@ -114,9 +115,9 @@ export class AdminPrompt {
                   "followup": "Would you like to save this version or make more changes?"
                 }
                 `;
-    }
-    public static getChannelRecommendationPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
-        return `
+  }
+  public static getChannelRecommendationPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+    return `
             You are an AI assistant designed to process admin instructions for automated channel recommendations in a chat server.
 
             Context:
@@ -225,9 +226,9 @@ export class AdminPrompt {
 
             Your JSON output:
             `;
-    }
-    public static getServerRulesPrompt(adminMessage ?: string, history ?: string, adminConfig ?: IAdminConfig): string {
-        return `
+  }
+  public static getServerRulesPrompt(adminMessage?: string, history?: string, adminConfig?: IAdminConfig): string {
+    return `
             You are an AI assistant responsible for helping an admin to create server rules for their server into a JSON format.
             Your task is to analyze the provided admin message along with the conversation history and generate response in a JSON output.
 
@@ -294,9 +295,9 @@ export class AdminPrompt {
 
              Your JSON Output:
           `;
-    }
-    public static getSendMessagePrompt(adminMessage?: string, history?: string): string {
-        return `
+  }
+  public static getSendMessagePrompt(adminMessage?: string, history?: string): string {
+    return `
             You are an AI assistant that helps Rocket.Chat admins send messages to users and channels.
 
             Your task is to extract a structured JSON response based on the admin’s intent. A message can only be sent if:
@@ -389,6 +390,6 @@ export class AdminPrompt {
             YOUR JSON RESPONSE:
 
             `;
-    }
+  }
 
 }
