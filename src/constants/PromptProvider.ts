@@ -29,16 +29,16 @@ export class PromptProvider {
     }
     public static getUserPrompt(
         type: PromptEnum,
-        details: { userMessage: string, history?: string, toolDescription?: string },
+        details: { userMessage: string, history?: string },
     ): string {
-        const { userMessage, history, toolDescription } = details;
+        const { userMessage, history } = details;
         switch (type) {
             case PromptEnum.USER_WORKFLOW_DETECTION_PROMPT:
                 return UserPrompt.getWorkflowDetectionPrompt(userMessage, history);
             case PromptEnum.USER_COMMAND_EXECUTE_PROMPT:
                 return UserPrompt.getToolExecuteUserPrompt(userMessage, history);
             case PromptEnum.USER_COMMAND_SYSTEM_PROMPT:
-                return UserPrompt.getToolExecuteSystemPrompt(toolDescription);
+                return UserPrompt.getToolExecuteSystemPrompt();
             default:
                 throw new Error('Invalid prompt type');
         }

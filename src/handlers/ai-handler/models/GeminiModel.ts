@@ -72,7 +72,6 @@ export class GeminiModel implements IAIModel {
 
         const systemPrompt = PromptProvider.getUserPrompt(PromptEnum.USER_COMMAND_SYSTEM_PROMPT, {
             userMessage: input,
-            toolDescription: commandList.map(t => `- ${t.name}: ${t.description}`).join('\n')
         });
 
         const requestBody = {

@@ -31,11 +31,10 @@ export class UserPrompt {
         }
        `;
   }
-  public static getToolExecuteSystemPrompt(toolsDescription?: string): string {
+  public static getToolExecuteSystemPrompt(): string {
     return `
         You are a helpful assistant capable of executing internal commands (functions) to complete user requests.
 
-        Always choose a function if any command matches the user's intent — even partially.
         You must NEVER ignore the available tools if they can help fulfill the user's request.
 
         If a command requires arguments, you MUST try to extract them naturally from the user’s message.
@@ -44,14 +43,10 @@ export class UserPrompt {
         - If a tool uses "#channel" as a parameter, interpret that as the name of a room or channel (e.g. "#channel" = "dev" if user says "join dev").
         - If a tool uses "roomToExecute", it means the room where the command should be executed.
            Extract it from the user’s message. If not mentioned, then default to "appsserveraiagent.bot" as the room (Strictly follow this).
-
+        - Always confirm from user before executing a command and show what command you are going to execute. Return a textual response in such cases instead of the function call
         After using a function, respond naturally as if you completed the action yourself.
         Do NOT mention the tool or function usage.
         ALWAYS TAKE CONTEXT FROM THE CONVERSATION FLOW
-        Stay casual, concise, and supportive.
-
-        # Available Commands
-        ${toolsDescription || 'No commands available.'}
     `
   }
   public static getToolExecuteUserPrompt(userMessage: string, history?: string): string {
@@ -63,7 +58,8 @@ export class UserPrompt {
         The user's latest message:
         "${userMessage}"
 
-        Based on this context, determine the user’s intent and match it to one of the available commands provided in the system instructions.
+        Based on this context, determine the user’s intent and match it to one of the available commands provided.
+        -Always confirm from the user before executing a command and show what command you are going to execute.
         `;
   }
 }
