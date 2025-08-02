@@ -34,7 +34,7 @@ export class AdminPrompt {
             2. Respond strictly in the following JSON format:
             {
               "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "tool_execute" | "unknown",
-              "message":  return an intermediate message to show you are working on the provided request , no followup message should be displayed in this stage, respond naturally, like you're thinking or processing, something like ‘Got it, working on that now.’ or ‘Understood, let me take care of it.’
+              "message":  return an intermediate message to show you are working on the provided request , no followup message should be displayed in this stage, respond naturally, like you're thinking or processing            
             }
             `;
   }

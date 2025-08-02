@@ -89,7 +89,8 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
             msgBuilder.setRoom(message.room);
             await modify.getCreator().finish(msgBuilder);
         } catch (error) {
-            console.log(`Error processing DM: ${error}`);
+            console.log("Error processing DM:", error);
+
         }
     }
 

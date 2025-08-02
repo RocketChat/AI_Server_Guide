@@ -6,7 +6,9 @@ import {
 export enum SettingEnum {
     AI_PROVIDER_OPTION_ID = 'ai-provider-option-id',
     GEMINI_AI_API_KEY_ID = 'gemini-ai-api-key-id',
+    CUSTOM_MODEL_URL = 'custom-model-url',
     GEMINI = 'gemini',
+    CUSTOM = 'custom',
 }
 
 export const Settings: Array<ISetting> = [
@@ -23,6 +25,10 @@ export const Settings: Array<ISetting> = [
                 key: SettingEnum.GEMINI,
                 i18nLabel: 'Gemini AI',
             },
+            {
+                key: SettingEnum.CUSTOM,
+                i18nLabel: 'custom AI Provider',
+            }
         ],
     },
     {
@@ -34,4 +40,13 @@ export const Settings: Array<ISetting> = [
         i18nLabel: 'Gemini API Key',
         i18nPlaceholder: 'Gemini API Key',
     },
+    {
+        id: SettingEnum.CUSTOM_MODEL_URL,
+        type: SettingType.STRING,
+        packageValue: '',
+        required: false,
+        public: false,
+        i18nLabel: 'Custom AI Model URL',
+        i18nPlaceholder: 'Custom AI Model URL',
+    }
 ];

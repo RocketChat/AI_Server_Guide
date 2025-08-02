@@ -2,6 +2,7 @@ import { IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { SettingEnum } from '../../../config/settings';
 import { IAIModel } from '../../../definitions/IAIModel';
 import { GeminiModel } from './models/GeminiModel';
+import { CustomModel } from './models/CustomModel';
 import { RocketChatApiService } from '../../../utils/api';
 export async function getModel(read: IRead, apiService?: RocketChatApiService): Promise<IAIModel> {
    const aiProvider = await read
@@ -12,6 +13,8 @@ export async function getModel(read: IRead, apiService?: RocketChatApiService): 
    switch (aiProvider) {
       case SettingEnum.GEMINI:
          return new GeminiModel(apiService);
+      case SettingEnum.CUSTOM:
+         return new CustomModel(apiService);
       default:
          throw new Error(`Unsupported AI provider: ${aiProvider}`);
    }
