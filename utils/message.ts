@@ -44,6 +44,7 @@ export async function sendMessage(
     room: IRoom,
     sender: IUser,
     message: string,
+    ThreadId?: string,
     blocks?: Array<LayoutBlock>,
 ): Promise<string> {
     const msg = modify
@@ -53,7 +54,9 @@ export async function sendMessage(
         .setRoom(room)
         .setParseUrls(true)
         .setText(message);
-
+    if (ThreadId) {
+        msg.setThreadId(ThreadId);
+    }
     if (blocks !== undefined) {
         msg.setBlocks(blocks);
     }
