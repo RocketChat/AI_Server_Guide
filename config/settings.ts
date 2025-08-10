@@ -5,7 +5,7 @@ import {
 
 export enum SettingEnum {
     AI_PROVIDER_OPTION_ID = 'ai-provider-option-id',
-    GEMINI_AI_API_KEY_ID = 'gemini-ai-api-key-id',
+    AI_API_KEY_ID = 'ai-api-key-id',
     CUSTOM_MODEL_URL = 'custom-model-url',
     GEMINI = 'gemini',
     CUSTOM = 'custom',
@@ -32,13 +32,13 @@ export const Settings: Array<ISetting> = [
         ],
     },
     {
-        id: SettingEnum.GEMINI_AI_API_KEY_ID,
+        id: SettingEnum.AI_API_KEY_ID,
         type: SettingType.PASSWORD,
         packageValue: '',
         required: true,
         public: false,
-        i18nLabel: 'Gemini API Key',
-        i18nPlaceholder: 'Gemini API Key',
+        i18nLabel: 'AI API Key',
+        i18nPlaceholder: 'AI API Key',
     },
     {
         id: SettingEnum.CUSTOM_MODEL_URL,

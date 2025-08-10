@@ -17,29 +17,28 @@ export class CustomModel implements IAIModel {
         if (!url) {
             return "Custom model URL is not configured.";
         }
+        const apiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.AI_API_KEY_ID);
         url.trim();
 
-        const payload = {
-            model: 'llama3',
+        const body = {
+            model: 'llama3-8b',
             messages: [
                 {
-                    role: 'user',
+                    role: 'system',
                     content: prompt,
                 },
             ],
-            temperature: 0.7,
-            max_tokens: 2000,
+            temperature: 0.7
         };
 
         const request = {
             headers: {
                 'Content-Type': 'application/json',
             },
-            data: payload,
+            content: JSON.stringify(body),
         };
         try {
             const response = await http.post(url, request);
-            this.app.getLogger().info('CustomModel response:', response);
             return this.processResponse(response);
         }
         catch (error) {
@@ -55,8 +54,9 @@ export class CustomModel implements IAIModel {
 
     public processResponse(response: any): string {
         try {
-            const content = response.content || response.data;
-            return content ? content : JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' + content });
+            const { choices } = response.data;
+            const content = choices[0].message.content;
+            return content ? content : JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
         } catch {
             return JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
         }

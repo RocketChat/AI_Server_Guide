@@ -15,7 +15,7 @@ export class GeminiModel implements IAIModel {
             this.apiService = apiService;
     }
     public async generateResponse(prompt: string, http: IHttp, read: IRead): Promise<string> {
-        const geminiApiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.GEMINI_AI_API_KEY_ID);
+        const geminiApiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.AI_API_KEY_ID);
         if (!geminiApiKey) {
             return MessageEnum.API_KEY_MISSING_TEXT;
         }
@@ -44,7 +44,7 @@ export class GeminiModel implements IAIModel {
     }
 
     public async generateToolResponse(commandsList: any, input: string, http: IHttp, read: IRead, user: IUser): Promise<string> {
-        const apiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.GEMINI_AI_API_KEY_ID);
+        const apiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.AI_API_KEY_ID);
         if (!apiKey) {
             return ' Gemini API key is missing. Please configure it in settings.';
         }
