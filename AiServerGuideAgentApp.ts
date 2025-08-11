@@ -22,8 +22,9 @@ import { getDirectRoom, sendMessage } from './utils/message';
 import { processAdminMessage, processUserMessage } from './utils/processMessage';
 import { IApiConfig } from './definitions/IApiConfig';
 import { ApiConfigPersistence } from './src/persistence/ApiConfigPersistence';
-
-export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot, IPostUserCreated {
+import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
+import { handleModeration } from './src/handlers/message-handler/users/moderationHanler';
+export class AiServerGuideAgentApp extends App implements IPostMessageSent, IPostMessageSentToBot, IPostUserCreated {
 
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
@@ -93,6 +94,41 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
 
         }
     }
+
+    public async executePostMessageSent(
+        message: IMessage,
+        read: IRead,
+        http: IHttp,
+        persistence: IPersistence,
+        modify: IModify,
+    ): Promise<void> {
+        if (message.room.type == 'd') {
+            return;
+        }
+        const botUser = await read.getUserReader().getAppUser();
+
+        if (!botUser) {
+            return;
+        }
+        if (botUser.id == message.sender.id) {
+            return;
+        }
+        const dmRoom = await getDirectRoom(
+            read,
+            modify,
+            botUser,
+            message.sender.username,
+        );
+        if (dmRoom?.id === message.room.id) {
+            return;
+        }
+        const messageToSend = await handleModeration(botUser, modify, message, read, persistence, http);
+        if (!messageToSend) {
+            return;
+        }
+        sendMessage(modify, message.room, botUser, messageToSend, message.threadId);
+    }
+
 
     public async executePostUserCreated(
         context: IUserContext,

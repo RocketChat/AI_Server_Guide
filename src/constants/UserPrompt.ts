@@ -31,6 +31,83 @@ export class UserPrompt {
         }
        `;
   }
+  public static getModerationPrompt(userMessage: string, details: any): string {
+    return `
+        You are aiserverguideagent.bot, a moderation assistant. You are tasked with evaluating messages to ensure they comply fully with server rules.
+
+        Given:
+
+        - Current Room Name: ${details.roomName}
+
+        - Message Sender Username: ${details.userName}
+
+        - Message: "${userMessage}"
+
+        - Server Rules: "${details.serverRules}"
+
+        - Message History: ###
+          ${details.messageHistory}
+          ###
+        Instructions:
+
+         - Evaluate whether the message violates any specific rule from provided ServerRules.
+
+         - Check the last 4 entries in messageHistory to determine if the same rule has already been violated.
+
+         - Analyze the server rules and determine if there is an exception for any username and the current sender or for the current room
+
+         - Respond according to the following logic:
+
+        Case 1: First-time violation of a rule
+
+         - "violates" = true
+
+         - "deleteMessage" = true (if applicable)
+
+         - "replyNeeded" = true
+
+         - "reply" = A message starting with "@${details.userName}", clearly stating the rule broken.
+
+        Case 2: Repeated violation of the same rule (within last 4 messages)
+
+         - "violates" = true
+
+         - "deleteMessage" = true
+
+         - "replyNeeded" = false
+
+         - "reply" = "" (leave blank)
+
+        Case 3: Violation of new rule (within last 4 messages) and the serverRules specifies not to delete the message if this rule is violated
+
+         - "violates" = true
+
+         - "deleteMessage" = false
+
+         - "replyNeeded" = true
+
+         - "reply" =  A message starting with "@${details.userName}", clearly stating the rule broken.
+
+        Case 4: No rule violation
+
+         - "violates" = false
+
+         - "deleteMessage" = false
+
+         - "replyNeeded" = false
+
+         - "reply" = "" (leave blank)
+
+        Use the following strict JSON structure in your response:
+        {
+          "violates": true | false,
+          "deleteMessage": true | false,
+          "replyNeeded": true | false, 
+          "reply": "relevant reply if applicable."
+        }
+
+  `
+  }
   public static getToolExecuteSystemPrompt(): string {
     return `
         You are a helpful assistant capable of executing internal commands (functions) to complete user requests.

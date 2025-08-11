@@ -29,9 +29,9 @@ export class PromptProvider {
     }
     public static getUserPrompt(
         type: PromptEnum,
-        details: { userMessage: string, history?: string },
+        details: { userMessage: string, history?: string, userConfig?: IAdminConfig, customInfo?: any },
     ): string {
-        const { userMessage, history } = details;
+        const { userMessage, history, customInfo } = details;
         switch (type) {
             case PromptEnum.USER_WORKFLOW_DETECTION_PROMPT:
                 return UserPrompt.getWorkflowDetectionPrompt(userMessage, history);
@@ -39,6 +39,8 @@ export class PromptProvider {
                 return UserPrompt.getToolExecuteUserPrompt(userMessage, history);
             case PromptEnum.USER_COMMAND_SYSTEM_PROMPT:
                 return UserPrompt.getToolExecuteSystemPrompt();
+            case PromptEnum.USER_MODERATION_PROMPT:
+                return UserPrompt.getModerationPrompt(userMessage, customInfo);
             default:
                 throw new Error('Invalid prompt type');
         }

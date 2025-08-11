@@ -13,6 +13,7 @@
     "classFile": "AiServerGuideAgentApp.ts",
     "description": "an intelligent assistant that helps onboard users and allows admins configure and manage server settings through a conversational interface.",
     "implements": [
+        "IPostMessageSent",
         "IPostMessageSentToBot",
         "IPostUserCreated"
     ],
