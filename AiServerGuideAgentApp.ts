@@ -170,14 +170,13 @@ export class AiServerGuideAgentApp extends App implements IPostMessageSentToBot,
             newComerChannel: { new_user_channel_config: string };
         };
         const apiConfigStore = new ApiConfigPersistence(persistence, read.getPersistenceReader());
-        const apiConfig = await apiConfigStore.getApiConfig(user.id);
-        if (!apiConfig) {
-            const updatedConfig: IApiConfig = {
-                serverUrl: viewState.serverUrl?.server_url_config ?? '',
-                xAuthToken: viewState.xAuthToken?.x_auth_token_config ?? '',
-                xUserId: viewState.xUserId?.x_user_id_config ?? '',
-            }
-            await apiConfigStore.storeApiConfig(updatedConfig, user.id);
+        const updatedApiConfig: IApiConfig = {
+            serverUrl: viewState.serverUrl?.server_url_config ?? '',
+            xAuthToken: viewState.xAuthToken?.x_auth_token_config ?? '',
+            xUserId: viewState.xUserId?.x_user_id_config ?? '',
+        }
+        await apiConfigStore.storeApiConfig(updatedApiConfig, user.id);
+        if (user.roles.includes('user')) {
             return;
         }
         const welcomeMessageText = viewState.welcomeMessage?.welcome_message_config ?? '';

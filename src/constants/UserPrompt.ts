@@ -1,3 +1,4 @@
+import { IAdminConfig } from "../../definitions/IAdminConfig";
 
 export class UserPrompt {
   public static getWorkflowDetectionPrompt(userMessage: string, history?: string): string {
@@ -7,12 +8,11 @@ export class UserPrompt {
         Guidelines:
         1. Prioritize the latest user message to detect intent.
         2. Use conversation history only for context. If there is an ongoing workflow in the history, consider it only if the latest message does not clearly indicate a new workflow.
-        3. Use "tool_execute" only if the user wants to run or execute a command. Check the history to decide if there is any ongoing discussions or fllowup on execution of a tool
-        4. Use "unknown" if the user’s intent does not clearly match the criteria for "tool_execute".
 
         Supported Workflows:
         1. tool_execute - Use when the user explicitly wants to run or execute a command or tool.
-        2. unknown - Use when the user's intent does not clearly involve executing a command.
+        2. channel_recommendation - Use when the user is asking for channel recommendations or related queries.
+        3. unknown - Use when the user's intent does not clearly involve any of the above workflows.
 
         Conversation History (most recent last): ###
         ${history ? history : 'No history available'}
@@ -23,11 +23,11 @@ export class UserPrompt {
         ###
 
         Instructions:
-        1. Always return one of the valid workflows: "tool_execute" or "unknown".
+        1. Always return one of the valid workflows
         2. Respond strictly in the following JSON format:
         {
-          "workflow": "tool_execute" | "unknown",
-          "message": return an intermediate message to show you are working on the provided request. Do not include any follow-up or result message at this stage. Respond naturally, like you're thinking or processing, such as: "Got it, working on that now." or "Understood, let me take care of it."
+          "workflow": "tool_execute" | "channel_recommendation" | "unknown",
+          "message": return an intermediate message to show you are working on the provided request. Do not include any follow-up or result message at this stage. Respond naturally, like you're thinking or processing or just talking with a person,
         }
        `;
   }
@@ -61,5 +61,35 @@ export class UserPrompt {
         Based on this context, determine the user’s intent and match it to one of the available commands provided.
         -Always confirm from the user before executing a command and show what command you are going to execute.
         `;
+  }
+  public static getChannelRecommendationPrompt(userMessage: string, history?: string, adminConfig?: IAdminConfig): string {
+    return `
+        You are an AI assistant for Rocket.Chat. Your task is to recommend channels based on the user's latest message and recent conversation history.
+
+        Guidelines:
+        1. Prioritize the latest user message to detect intent.
+        2. Use conversation history only for context.
+        3. Provide channel recommendations based on the user's request.
+
+        Current General Channel Recommendation Instructions (Strictly refer to this to provide channel suggestion , suggest channels based on this list , if any perfect match isnt found then mention that):
+         ###
+           ${adminConfig?.recommendedChannels || 'No specific instructions provided.'}
+         ###
+    
+        Conversation History (most recent last): ###
+        ${history ? history : 'No history available'}
+        ###
+
+        Current User Message: ###
+        ${userMessage}
+        ###
+
+        Instructions:
+        1. Always return a JSON response with the following structure:
+        {
+          "aiMessage": "Your response message", (Only suggest relevant channels )
+          "followup": "Any follow-up actions or messages",
+        }
+       `;
   }
 }

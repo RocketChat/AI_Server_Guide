@@ -6,10 +6,9 @@ import { PromptProvider } from '../src/constants/PromptProvider';
 import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
 import { handleChannelRecommendation, handleMessageSend, handleOnboardingMessage, handleServerRules } from '../src/handlers/message-handler/admin/adminMessageHandler';
 import { AdminPersistence } from '../src/persistence/AdminPersistence';
-import { UserPersistence } from '../src/persistence/UserPersistence';
 import { ConversationHistoryPersistence } from '../src/persistence/ConversationPersistence';
 import { sendIntermediate } from './message';
-import { handleToolExecute } from '../src/handlers/message-handler/users/userMessageHandler';
+import { handleToolExecute, handleUserChannelRecommendation } from '../src/handlers/message-handler/users/userMessageHandler';
 
 
 async function checkPromptSafety(
@@ -151,13 +150,16 @@ export async function processUserMessage(
     }
 
     const user = message.sender;
-    const userStore = new UserPersistence(persistence, read.getPersistenceReader());
+    const adminStore = new AdminPersistence(persistence, read.getPersistenceReader());
     const historyStore = new ConversationHistoryPersistence(persistence, read.getPersistenceReader());
 
     workflow.trim();
     switch (workflow) {
         case 'tool_execute':
             return handleToolExecute(input, read, http, historyStore, user, persistence);
+        case 'channel_recommendation':
+            return handleUserChannelRecommendation(input, adminStore, historyStore, model, http, read, user.id);
+        case 'unknown':
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
     }
