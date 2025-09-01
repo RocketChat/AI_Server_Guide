@@ -14,12 +14,11 @@ export class AdminPrompt {
             1. onboarding_message - Admin wants to define or change the welcome message for new users.
             2. server_rules - Admin wants to set or update community guidelines or rules. Simply suggesting a channel does not count as server_rules.
             3. user_channel_setup - Admin is deciding which channels new users should be automatically added to, or assigning channels based on activity or roles.
-            4. channel_report - Admin wants insights, engagement metrics, or activity data about channels.
-            5. send_message - Admin wants to send a message to users or channels. This includes:
+            4. send_message - Admin wants to send a message to users or channels. This includes:
                - Direct instructions to send a message
                - Requests to help write a message
-            6. tool_execute - Admin wants to execute a tool or command
-            7. unknown - Use this only if none of the above workflows clearly match the intent.
+            5. tool_execute - Admin wants to execute a tool or command
+            6. unknown - Use this only if none of the above workflows clearly match the intent.
 
             Conversation History (most recent last): ###
             ${history ? history : 'No history available'}
@@ -33,7 +32,7 @@ export class AdminPrompt {
             1. Always return one of the six valid workflows.
             2. Respond strictly in the following JSON format:
             {
-              "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" | "channel_report" | "send_message" | "tool_execute" | "unknown",
+              "workflow": "onboarding_message" | "server_rules" | "user_channel_setup" |  "send_message" | "tool_execute" | "unknown",
               "message":  return an intermediate message to show you are working on the provided request , no followup message should be displayed in this stage, respond naturally, like you're thinking or processing            
             }
             `;
