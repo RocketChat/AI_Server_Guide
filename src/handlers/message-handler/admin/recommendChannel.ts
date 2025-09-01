@@ -2,6 +2,7 @@ import { IHttp, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { getDefaultAdminConfig, IAdminConfig } from '../../../../definitions/IAdminConfig';
 import { IAIModel } from '../../../../definitions/IAIModel';
 import { PromptEnum } from '../../../../enums/promptEnum';
+import { WorkflowEnum } from '../../../../enums/workflowEnum';
 import { PromptProvider } from '../../../constants/PromptProvider';
 import { AdminPersistence } from '../../../persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../../../persistence/ConversationPersistence';
@@ -16,7 +17,7 @@ export async function handleChannelRecommendation(
     userId: string,
 ): Promise<string> {
     try {
-        const rawHistory = await historyStorage.getHistory('channel_recommendation', userId);
+        const rawHistory = await historyStorage.getHistory(WorkflowEnum.ADMIN_CHANNEL_RECOMMENDATION, userId);
         const historyContext = Array.isArray(rawHistory) ? rawHistory.join('\n') : '';
         const adminConfig = (await adminStorage.getAdminConfig()) ?? getDefaultAdminConfig();
 
@@ -36,7 +37,6 @@ export async function handleChannelRecommendation(
             followup = '',
             new_comer_channel,
         } = parsedResponse;
-        console.log(parsedResponse);
         const raw = new_comer_channel as unknown;
 
         const newComerChannel: Array<string> = Array.isArray(raw)
@@ -45,10 +45,10 @@ export async function handleChannelRecommendation(
                 ? [raw.trim()]
                 : [];
 
-        await historyStorage.updateHistory('channel_recommendation', userId, `user: ${adminMessage}`);
+        await historyStorage.updateHistory(WorkflowEnum.ADMIN_CHANNEL_RECOMMENDATION, userId, `user: ${adminMessage}`);
 
         if (aihelp) {
-            await historyStorage.updateHistory('channel_recommendation', userId, `bot: ${aiMessage}`);
+            await historyStorage.updateHistory(WorkflowEnum.ADMIN_CHANNEL_RECOMMENDATION, userId, `bot: ${aiMessage}`);
             return aiMessage + followup;
         }
 

@@ -31,7 +31,7 @@ export class PromptProvider {
         type: PromptEnum,
         details: { userMessage: string, history?: string, adminConfig?: IAdminConfig },
     ): string {
-        const { userMessage, history } = details;
+        const { userMessage, history, adminConfig } = details;
         switch (type) {
             case PromptEnum.USER_WORKFLOW_DETECTION_PROMPT:
                 return UserPrompt.getWorkflowDetectionPrompt(userMessage, history);
@@ -40,7 +40,7 @@ export class PromptProvider {
             case PromptEnum.USER_COMMAND_SYSTEM_PROMPT:
                 return UserPrompt.getToolExecuteSystemPrompt();
             case PromptEnum.USER_CHANNEL_RECOMMENDATIONS_PROMPT:
-                return UserPrompt.getChannelRecommendationPrompt(userMessage, history);
+                return UserPrompt.getChannelRecommendationPrompt(userMessage, history, adminConfig);
             default:
                 throw new Error('Invalid prompt type');
         }

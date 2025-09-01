@@ -2,6 +2,7 @@ import { IHttp, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { getDefaultAdminConfig } from '../../../../definitions/IAdminConfig';
 import { IAIModel } from '../../../../definitions/IAIModel';
 import { PromptEnum } from '../../../../enums/promptEnum';
+import { WorkflowEnum } from '../../../../enums/workflowEnum';
 import { PromptProvider } from '../../../constants/PromptProvider';
 import { AdminPersistence } from '../../../persistence/AdminPersistence';
 import { ConversationHistoryPersistence } from '../../../persistence/ConversationPersistence';
@@ -16,7 +17,7 @@ export async function handleOnboardingMessage(
     userId: string,
 ): Promise<string> {
     try {
-        const rawHistory = await historyStorage.getHistory('onboarding', userId);
+        const rawHistory = await historyStorage.getHistory(WorkflowEnum.ADMIN_WELCOME_MESSAGE, userId);
         const historyContext = Array.isArray(rawHistory) ? rawHistory.join('\n') : '';
 
         const prompt = PromptProvider.getAdminPrompt(
@@ -32,10 +33,10 @@ export async function handleOnboardingMessage(
             followup = '',
         } = JSON.parse(aiResponse || '{}');
 
-        await historyStorage.updateHistory('onboarding', userId, `user: ${adminMessage}`);
+        await historyStorage.updateHistory(WorkflowEnum.ADMIN_WELCOME_MESSAGE, userId, `user: ${adminMessage}`);
 
         if (aihelp) {
-            await historyStorage.updateHistory('onboarding', userId, `bot: ${aiMessage}`);
+            await historyStorage.updateHistory(WorkflowEnum.ADMIN_WELCOME_MESSAGE, userId, `bot: ${aiMessage}`);
             return `${aiMessage}\n${followup}`;
         }
 
@@ -43,7 +44,7 @@ export async function handleOnboardingMessage(
         adminConfig.welcomeMessage = message;
 
         await adminStorage.storeAdminConfig(adminConfig);
-        await historyStorage.updateHistory('onboarding', userId, `bot: ${message}`);
+        await historyStorage.updateHistory(WorkflowEnum.ADMIN_WELCOME_MESSAGE, userId, `bot: ${message}`);
 
         return `Welcome message set successfully.\n${message}\n${followup}`;
     } catch (error) {

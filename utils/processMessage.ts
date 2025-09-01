@@ -2,6 +2,7 @@ import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/de
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { MessageEnum } from '../enums/messageEnum';
 import { PromptEnum } from '../enums/promptEnum';
+import { WorkflowEnum } from '../enums/workflowEnum';
 import { PromptProvider } from '../src/constants/PromptProvider';
 import { getModel } from '../src/handlers/ai-handler/AIModelHandler';
 import { handleChannelRecommendation, handleMessageSend, handleOnboardingMessage, handleServerRules } from '../src/handlers/message-handler/admin/adminMessageHandler';
@@ -78,7 +79,7 @@ export async function processAdminMessage(
         message: intermediateMessage = 'Processing your request...',
     } = workflowData;
 
-    if (workflow !== 'unknown') {
+    if (workflow !== WorkflowEnum.UNKNOWN) {
         await sendIntermediate(modify, message.room, intermediateMessage);
     }
 
@@ -87,15 +88,15 @@ export async function processAdminMessage(
     const historyStore = new ConversationHistoryPersistence(persistence, read.getPersistenceReader());
 
     switch (workflow) {
-        case 'onboarding_message':
+        case WorkflowEnum.ADMIN_WELCOME_MESSAGE:
             return handleOnboardingMessage(input, adminStore, historyStore, model, http, read, userId);
-        case 'user_channel_setup':
+        case WorkflowEnum.ADMIN_CHANNEL_RECOMMENDATION:
             return handleChannelRecommendation(input, adminStore, historyStore, model, http, read, userId);
-        case 'server_rules':
+        case WorkflowEnum.ADMIN_SERVER_RULES:
             return handleServerRules(input, adminStore, historyStore, model, http, read, userId);
-        case 'send_message':
+        case WorkflowEnum.ADMIN_MESSAGE_SEND:
             return handleMessageSend(input, historyStore, model, http, read, userId, modify);
-        case 'tool_execute':
+        case WorkflowEnum.ADMIN_TOOL_EXECUTE:
             return handleToolExecute(input, read, http, historyStore, message.sender, persistence);
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
@@ -145,7 +146,7 @@ export async function processUserMessage(
         message: intermediateMessage = 'Processing your request...',
     } = workflowData;
 
-    if (workflow !== 'unknown') {
+    if (workflow !== WorkflowEnum.UNKNOWN) {
         await sendIntermediate(modify, message.room, intermediateMessage);
     }
 
@@ -155,11 +156,11 @@ export async function processUserMessage(
 
     workflow.trim();
     switch (workflow) {
-        case 'tool_execute':
+        case WorkflowEnum.USER_TOOL_EXECUTE:
             return handleToolExecute(input, read, http, historyStore, user, persistence);
-        case 'channel_recommendation':
+        case WorkflowEnum.USER_CHANNEL_RECOMMENDATION:
             return handleUserChannelRecommendation(input, adminStore, historyStore, model, http, read, user.id);
-        case 'unknown':
+        case WorkflowEnum.UNKNOWN:
         default:
             return MessageEnum.INSTRUCTION_TEXT.toString();
     }

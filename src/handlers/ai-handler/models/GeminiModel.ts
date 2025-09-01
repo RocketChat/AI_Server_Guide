@@ -121,7 +121,6 @@ export class GeminiModel implements IAIModel {
                         await this.apiService.executeCommand(http, command, flatParams, read, room, defaultRoom);
                         return messageText || ` Command /${command} executed.`;
                     } catch (error: any) {
-                        console.log(`Error executing command /${command}:`, error);
                         return ` Failed to execute /${command}`;
                     }
                 } else {

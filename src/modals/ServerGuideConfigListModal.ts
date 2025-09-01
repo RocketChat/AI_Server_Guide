@@ -3,10 +3,11 @@ import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashco
 import { UIKitInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 import { TextObjectType } from '@rocket.chat/apps-engine/definition/uikit/blocks';
 import { IUIKitModalViewParam } from '@rocket.chat/apps-engine/definition/uikit/UIKitInteractionResponder';
-import { Modals } from '../../enums/modalEnum';
+import { Modals, BlockIds, ActionIds, ModalText } from '../../enums/modalEnum';
 import { AdminPersistence } from '../persistence/AdminPersistence';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { ApiConfigPersistence } from '../persistence/ApiConfigPersistence';
+
 export async function ServerGuideConfigListModal({
     user,
     modify,
@@ -27,127 +28,131 @@ export async function ServerGuideConfigListModal({
     const apiConfigStore = new ApiConfigPersistence(persistence, read.getPersistenceReader());
     const apiConfig = await apiConfigStore.getApiConfig(user.id);
     const adminConfig = await adminStore.getAdminConfig();
+
     const blocks = modify.getCreator().getBlockBuilder();
+
     blocks.addInputBlock({
         label: {
-            text: '### Enter Server URL',
+            text: ModalText.Labels.ServerUrl,
             type: TextObjectType.MARKDOWN,
         },
         element: blocks.newPlainTextInputElement({
-            actionId: 'server_url_config',
+            actionId: ActionIds.ServerUrl,
             placeholder: {
-                text: 'Server URL is not set yet',
+                text: ModalText.Placeholders.ServerUrl,
                 type: TextObjectType.PLAINTEXT,
             },
             initialValue: apiConfig?.serverUrl ?? '',
         }),
-        blockId: 'serverUrl',
+        blockId: BlockIds.ServerUrl,
     });
 
     blocks.addInputBlock({
         label: {
-            text: '### Enter X-Auth Token',
+            text: ModalText.Labels.XAuthToken,
             type: TextObjectType.MARKDOWN,
         },
         element: blocks.newPlainTextInputElement({
-            actionId: 'x_auth_token_config',
+            actionId: ActionIds.XAuthToken,
             placeholder: {
-                text: 'X-Auth Token is not set yet',
+                text: ModalText.Placeholders.XAuthToken,
                 type: TextObjectType.PLAINTEXT,
             },
             initialValue: apiConfig?.xAuthToken ?? '',
         }),
-        blockId: 'xAuthToken',
+        blockId: BlockIds.XAuthToken,
     });
 
     blocks.addInputBlock({
         label: {
-            text: '### Enter X-User ID',
+            text: ModalText.Labels.XUserId,
             type: TextObjectType.MARKDOWN,
         },
         element: blocks.newPlainTextInputElement({
-            actionId: 'x_user_id_config',
+            actionId: ActionIds.XUserId,
             placeholder: {
-                text: 'X-User ID is not set yet',
+                text: ModalText.Placeholders.XUserId,
                 type: TextObjectType.PLAINTEXT,
             },
             initialValue: apiConfig?.xUserId ?? '',
         }),
-        blockId: 'xUserId',
+        blockId: BlockIds.XUserId,
     });
+
     if (user.roles.includes('admin')) {
         blocks.addInputBlock({
             label: {
-                text: '### Current Welcome Message',
+                text: ModalText.Labels.WelcomeMessage,
                 type: TextObjectType.MARKDOWN,
             },
             element: blocks.newPlainTextInputElement({
-                actionId: 'welcome_message_config',
+                actionId: ActionIds.WelcomeMessage,
                 multiline: true,
                 placeholder: {
-                    text: 'No welcome message set yet',
+                    text: ModalText.Placeholders.WelcomeMessage,
                     type: TextObjectType.PLAINTEXT,
                 },
                 initialValue: adminConfig?.welcomeMessage ?? undefined,
             }),
-            blockId: 'welcomeMessage',
+            blockId: BlockIds.WelcomeMessage,
         });
 
         blocks.addInputBlock({
             label: {
-                text: '### Current Server Rules ',
+                text: ModalText.Labels.ServerRules,
                 type: TextObjectType.MARKDOWN,
             },
             element: blocks.newPlainTextInputElement({
-                actionId: 'server_rules_config',
+                actionId: ActionIds.ServerRules,
                 multiline: true,
                 placeholder: {
-                    text: 'Server Rules is not set yet',
+                    text: ModalText.Placeholders.ServerRules,
                     type: TextObjectType.PLAINTEXT,
                 },
                 initialValue: adminConfig?.serverRules ?? undefined,
             }),
-            blockId: 'serverRules',
+            blockId: BlockIds.ServerRules,
         });
 
         blocks.addInputBlock({
             label: {
-                text: '### Current Channel Recommendation ',
+                text: ModalText.Labels.ChannelRecommendation,
                 type: TextObjectType.MARKDOWN,
             },
             element: blocks.newPlainTextInputElement({
-                actionId: 'channel_recommendation_config',
+                actionId: ActionIds.ChannelRecommendation,
                 multiline: true,
                 placeholder: {
-                    text: 'channel recommendations are not set yet',
+                    text: ModalText.Placeholders.ChannelRecommendation,
                     type: TextObjectType.PLAINTEXT,
                 },
                 initialValue: adminConfig?.recommendedChannels ?? undefined,
             }),
-            blockId: 'recommendedChannels',
+            blockId: BlockIds.RecommendedChannels,
         });
 
         blocks.addInputBlock({
             label: {
-                text: '### Default Channels for new users ',
+                text: ModalText.Labels.NewUserChannels,
                 type: TextObjectType.MARKDOWN,
             },
             element: blocks.newPlainTextInputElement({
-                actionId: 'new_user_channel_config',
+                actionId: ActionIds.NewUserChannels,
                 placeholder: {
-                    text: 'new user channels are not set yet',
+                    text: ModalText.Placeholders.NewUserChannels,
                     type: TextObjectType.PLAINTEXT,
                 },
                 initialValue: adminConfig?.newComerChannel?.join(', ') ?? undefined,
             }),
-            blockId: 'newComerChannel',
+            blockId: BlockIds.NewComerChannel,
         });
     }
+
     return {
         id: Modals.AdminConfigModal,
-        title: blocks.newPlainTextObject('Configurations'),
+        title: blocks.newPlainTextObject(ModalText.Title),
         submit: blocks.newButtonElement({
-            text: blocks.newPlainTextObject('Save Changes'),
+            text: blocks.newPlainTextObject(ModalText.SaveButton),
         }),
         blocks: blocks.getBlocks(),
     };

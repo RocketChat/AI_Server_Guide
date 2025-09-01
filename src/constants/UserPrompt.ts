@@ -63,6 +63,7 @@ export class UserPrompt {
         `;
   }
   public static getChannelRecommendationPrompt(userMessage: string, history?: string, adminConfig?: IAdminConfig): string {
+
     return `
         You are an AI assistant for Rocket.Chat. Your task is to recommend channels based on the user's latest message and recent conversation history.
 
@@ -70,7 +71,7 @@ export class UserPrompt {
         1. Prioritize the latest user message to detect intent.
         2. Use conversation history only for context.
         3. Provide channel recommendations based on the user's request.
-
+        4. If no channels from the provided list align precisely with the user’s request, clearly state that no exact match is available. Do not suggest any channels not included in the official list.
         Current General Channel Recommendation Instructions (Strictly refer to this to provide channel suggestion , suggest channels based on this list , if any perfect match isnt found then mention that):
          ###
            ${adminConfig?.recommendedChannels || 'No specific instructions provided.'}

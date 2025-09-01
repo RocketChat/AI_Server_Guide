@@ -17,7 +17,6 @@ export class CustomModel implements IAIModel {
         if (!url) {
             return "Custom model URL is not configured.";
         }
-        const apiKey = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.AI_API_KEY_ID);
         url.trim();
 
         const body = {
@@ -28,7 +27,7 @@ export class CustomModel implements IAIModel {
                     content: prompt,
                 },
             ],
-            temperature: 0.7
+            temperature: 0.7,
         };
 
         const request = {
@@ -48,17 +47,74 @@ export class CustomModel implements IAIModel {
     }
 
     public async generateToolResponse(commandsList: any, input: string, http: IHttp, read: IRead, user: IUser): Promise<string> {
-        //TODO
-        return 'Tools are not supported by Custom AI Provider now.';
+        const url = await read.getEnvironmentReader().getSettings().getValueById(SettingEnum.CUSTOM_MODEL_URL);
+        if (!url) {
+            return "Custom model URL is not configured.";
+        }
+        if (!commandsList) {
+            return "No commands available to process.";
+        }
+        url.trim();
+        const commandList = (commandsList.commands || []).map((cmd: any) => ({
+            name: cmd.command,
+            description: cmd.description || 'No description provided.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    ...(cmd.params && typeof cmd.params === 'string'
+                        ? { [cmd.params]: { type: 'string' } }
+                        : {}),
+                    roomToExecute: {
+                        type: 'string',
+                        description: 'Name of the room where the command should be executed',
+                    },
+                },
+                required: [
+                    ...(cmd.params ? [cmd.params] : []),
+                    'roomToExecute',
+                ],
+            },
+        }));
+        const body = {
+            model: 'llama3-8b',
+            messages: [
+                {
+                    role: 'system',
+                    content: `Identify the command from the input and provide a response based on the available commands. 
+                              User query: ${input} .
+                              From the available commands: 
+                                ${commandsList.commands}
+                              `,
+                },
+            ],
+            temperature: 0.7
+        };
+        const request = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            content: JSON.stringify(body),
+        };
+
+        try {
+            const response = await http.post(url, request);
+            const json = await JSON.stringify(response.content);
+            return JSON.stringify(commandList[0]);
+        }
+        catch (error) {
+            return JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
+        }
+        return JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
     }
 
     public processResponse(response: any): string {
         try {
+
             const { choices } = response.data;
             const content = choices[0].message.content;
-            return content ? content : JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
-        } catch {
-            return JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' });
+            return content ? content : JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' + response.statusCode });
+        } catch (error) {
+            return JSON.stringify({ message: 'Sorry! I was unable to process your request. Please try again.' + (response || '') });
         }
     }
 }

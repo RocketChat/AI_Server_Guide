@@ -12,8 +12,6 @@ export enum MessageEnum {
         2. **Set up server rules and etiquette**.
         3. **Suggest channels** new users should check out.
         4. **Specify default channels** that users should automatically join.
-        5. **Provide a guide for key apps and features**.
-		6. **Get a report on channel activity**.
 
         **Please remember**, I’m here to help you through this process! 🙌 Be as specific as possible with your responses, and I’ll make sure everything is configured just the way you want.
 		Here’s a simple example :
