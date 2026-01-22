@@ -29,13 +29,30 @@ Admins can configure the AI Guide Agent to deliver a streamlined onboarding and 
     <li>They can simply use the chat interface to carry out tasks like creating, joining, or leaving a channel, inviting users, or using app functions , all without needing to know the inner workings or remember slash commands.</li>
 </ul>
 
+
+## ✅ Prerequisites
+
+Before installing the app, make sure you have:
+
+- Node.js (v18 or later recommended)
+- npm (comes with Node.js)
+- Rocket.Chat server (local or remote)
+- Rocket.Chat Apps CLI installed globally
+
+> **Note for Windows (PowerShell users):**  
+> Use quotes when installing the Apps CLI:
+> ```powershell
+> npm install -g "@rocket.chat/apps-cli"
+> ```
+
+
 <h2  >⚙️ Installation </h2>
 
 <ol>
 
 <li>Have a Rocket.Chat server ready. If you don't have a server, see this <a  href="https://developer.rocket.chat/v1/docs/server-environment-setup">guide</a>.</li>
 
-<li>Install the Rocket.Chat Apps Engline CLI.
+<li>Install the Rocket.Chat Apps Engine CLI.
 
 ```
 
@@ -98,6 +115,12 @@ rc-apps deploy --url <server_url> --username <username> --password <password>
 <li> Open the App, by navigating to <i>Administration > Marketplace > Private Apps</i>. You should see the app listed there. Click on the App name to open the app.</li>
 
 </ol>
+
+
+> This is a Rocket.Chat App and does not run using `npm start`.
+> The app is deployed and executed inside a Rocket.Chat server using the Apps CLI.
+
+
 
 ## 🧑‍💻 Contributing
 
