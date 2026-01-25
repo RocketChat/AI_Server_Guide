@@ -34,8 +34,7 @@ Admins can configure the AI Guide Agent to deliver a streamlined onboarding and 
 
 Before installing the app, make sure you have:
 
-- Node.js (v18 or later recommended)
-- npm (comes with Node.js)
+- Node.js (LTS version recommended)
 - Rocket.Chat server (local or remote)
 - Rocket.Chat Apps CLI installed globally
 
