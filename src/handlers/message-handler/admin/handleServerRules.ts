@@ -39,7 +39,7 @@ export async function handleServerRules(
         }
 
         await historyStorage.updateHistory(WorkflowEnum.ADMIN_SERVER_RULES, userId, 'bot: '
-            + 'Server Rules setup Successfully ! \n Your current server rules:'
+            + '✅ *Server Rules setup successfully!* \n\n**Your current server rules:**'
             + '\n' + message + '\n' + followup);
         adminConfig.serverRules = message;
         await adminStorage.storeAdminConfig(adminConfig);
