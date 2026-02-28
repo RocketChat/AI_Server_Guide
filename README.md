@@ -35,7 +35,7 @@ Admins can configure the AI Guide Agent to deliver a streamlined onboarding and 
 
 <li>Have a Rocket.Chat server ready. If you don't have a server, see this <a  href="https://developer.rocket.chat/v1/docs/server-environment-setup">guide</a>.</li>
 
-<li>Install the Rocket.Chat Apps Engline CLI.
+<li>Install the Rocket.Chat Apps Engine CLI.
 
 ```
 
@@ -98,6 +98,45 @@ rc-apps deploy --url <server_url> --username <username> --password <password>
 <li> Open the App, by navigating to <i>Administration > Marketplace > Private Apps</i>. You should see the app listed there. Click on the App name to open the app.</li>
 
 </ol>
+
+## ⚡ Quickstart (Test Locally)
+
+Once you've installed the app, follow these steps to test it in your Rocket.Chat workspace:
+
+1. **Start a Rocket.Chat server**
+   - Use a local development server (`http://localhost:3000`) or an existing cloud workspace
+   - Ensure you have **admin access** to install apps
+
+2. **Enable Apps development mode**
+   - Go to **Administration > General > Apps**
+   - Turn on **"Enable development mode"**
+
+3. **Deploy the app**
+   Run this command from the project root:
+   ```bash
+   rc-apps deploy --url http://localhost:3000 --username <admin_username> --password <admin_password>
+   ```
+   Replace `<admin_username>` and `<admin_password>` with your admin credentials.
+
+4. **Activate the app**
+   - Navigate to **Administration > Marketplace > Private Apps**
+   - You should see **"AI Server Guide Agent"** listed
+   - Click on it and enable the app
+
+5. **Test with a new user**
+   - Create a test user account or ask a new team member to join
+   - The bot will automatically:
+     - Send a welcome message
+     - Show server rules & etiquette
+     - Recommend channels based on their needs
+     - Auto-join them to default channels
+
+6. **Try admin commands**
+   As an admin, test these features in chat:
+   - Broadcast announcements to users/channels
+   - Execute slash commands via the chat interface
+   - Manage channel recommendations
+
 
 ## 🧑‍💻 Contributing
 
